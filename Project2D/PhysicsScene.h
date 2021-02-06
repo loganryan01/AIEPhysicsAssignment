@@ -20,6 +20,8 @@ public:
 	void SetTimeStep(const float a_timeStep) { m_timeStep = a_timeStep; }
 	float GetTimeStep() const { return m_timeStep; }
 
+	static bool Sphere2Sphere(PhysicsObject*, PhysicsObject*);
+
 protected:
 	glm::vec2 m_gravity;
 	float m_timeStep;

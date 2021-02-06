@@ -1,9 +1,11 @@
-#include <Gizmos.h>
-#include <glm\ext.hpp>
 #include "PhysicsApp.h"
 #include "Texture.h"
 #include "Font.h"
 #include "Input.h"
+#include <Gizmos.h>
+#include <glm\ext.hpp>
+
+#include "Sphere.h"
 
 PhysicsApp::PhysicsApp() 
 {
@@ -21,10 +23,22 @@ bool PhysicsApp::startup()
 	aie::Gizmos::create(255U, 255U, 65535U, 65535U);
 	
 	m_2dRenderer = new aie::Renderer2D();
+
 	m_font = new aie::Font("./font/consolas.ttf", 32);
 
+	// initialize the physics scene
 	m_physicsScene = new PhysicsScene();
+	m_physicsScene->SetGravity(glm::vec2(0, 0));
 	m_physicsScene->SetTimeStep(0.01f);
+
+	Sphere* ball1 = new Sphere(glm::vec2(-20, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball2 = new Sphere(glm::vec2(10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
+	
+	m_physicsScene->AddActor(ball1);
+	m_physicsScene->AddActor(ball2);
+
+	ball1->ApplyForce(glm::vec2(30, 0));
+	ball2->ApplyForce(glm::vec2(-30, 0));
 	return true;
 }
 
