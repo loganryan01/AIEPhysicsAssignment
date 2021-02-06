@@ -1,11 +1,11 @@
 #pragma once
-
 #include "Application.h"
 #include "Renderer2D.h"
+#include "PhysicsScene.h"
 
-class PhysicsApp : public aie::Application {
+class PhysicsApp : public aie::Application 
+{
 public:
-
 	PhysicsApp();
 	virtual ~PhysicsApp();
 
@@ -16,11 +16,8 @@ public:
 	virtual void draw();
 
 protected:
-
 	aie::Renderer2D*	m_2dRenderer;
-	aie::Texture*		m_texture;
-	aie::Texture*		m_shipTexture;
 	aie::Font*			m_font;
 
-	float m_timer;
+	PhysicsScene*		m_physicsScene;
 };
