@@ -12,6 +12,8 @@ public:
 	void ApplyForce(glm::vec2 a_force);
 	void ApplyForceToActor(Rigidbody* a_actor2, glm::vec2 a_force);
 
+	void ResolveCollision(Rigidbody* a_actor2);
+
 	glm::vec2 GetPosition() { return m_position; }
 	float GetOrientation() { return m_orientation; }
 	glm::vec2 GetVelocity() { return m_velocity; }
