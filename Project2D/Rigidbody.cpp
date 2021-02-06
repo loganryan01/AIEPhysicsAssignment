@@ -1,7 +1,7 @@
 #include "Rigidbody.h"
 
 Rigidbody::Rigidbody(ShapeType a_shapeID, glm::vec2 a_position, glm::vec2 a_velocity, float a_orientation, float a_mass) : 
-	m_position(a_position), m_velocity(a_velocity), m_orientation(a_orientation), m_mass(a_mass)
+	PhysicsObject(a_shapeID), m_position(a_position), m_velocity(a_velocity), m_orientation(a_orientation), m_mass(a_mass)
 {
 }
 

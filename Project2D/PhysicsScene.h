@@ -12,6 +12,7 @@ public:
 	void AddActor(PhysicsObject* a_actor);
 	void RemoveActor(PhysicsObject* a_actor);
 	void Update(float dt);
+	void UpdateGizmos();
 	void Draw();
 
 	void SetGravity(const glm::vec2 a_gravity) { m_gravity = a_gravity; }
@@ -20,6 +21,11 @@ public:
 	void SetTimeStep(const float a_timeStep) { m_timeStep = a_timeStep; }
 	float GetTimeStep() const { return m_timeStep; }
 
+	void CheckForCollision();
+
+	static bool Plane2Plane(PhysicsObject*, PhysicsObject*);
+	static bool Plane2Sphere(PhysicsObject*, PhysicsObject*);
+	static bool Sphere2Plane(PhysicsObject*, PhysicsObject*);
 	static bool Sphere2Sphere(PhysicsObject*, PhysicsObject*);
 
 protected:
