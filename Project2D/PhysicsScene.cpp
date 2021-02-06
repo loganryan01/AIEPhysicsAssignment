@@ -138,14 +138,12 @@ bool PhysicsScene::Sphere2Sphere(PhysicsObject* a_obj1, PhysicsObject* a_obj2)
 	// If we are successful then test for collision
 	if (sphere1 != nullptr && sphere2 != nullptr)
 	{
-		float distance = glm::distance(sphere1->GetPosition(), sphere2->GetPosition());
+		glm::vec2 dist = sphere1->GetPosition() - sphere2->GetPosition();
 		float sumOfRadii = sphere1->GetRadius() + sphere2->GetRadius();
 
-		if (distance < sumOfRadii)
+		if (glm::length(dist) < sumOfRadii)
 		{
-			sphere1->ApplyForce(-sphere1->GetVelocity() * sphere1->GetMass());
-			sphere2->ApplyForce(-sphere2->GetVelocity() * sphere2->GetMass());
-
+			sphere1->ResolveCollision(sphere2);
 			return true;
 		}
 	}
