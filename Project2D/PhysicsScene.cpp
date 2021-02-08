@@ -115,13 +115,14 @@ bool PhysicsScene::Sphere2Plane(PhysicsObject* a_obj1, PhysicsObject* a_obj2)
 		glm::vec2 collisionNormal = plane->GetNormal();
 		float sphereToPlane = glm::dot(sphere->GetPosition(), plane->GetNormal()) -
 			plane->GetDistance();
+		glm::vec2 contact = sphere->GetPosition() + (collisionNormal * -sphere->GetRadius());
 
 		float intersection = sphere->GetRadius() - sphereToPlane;
 		float velocityOutOfPlane
 			= glm::dot(sphere->GetVelocity(), plane->GetNormal());
 		if (intersection > 0 && velocityOutOfPlane < 0)
 		{
-			plane->ResolveCollision(sphere);
+			plane->ResolveCollision(sphere, contact);
 			return true;
 		}
 	}
@@ -142,7 +143,8 @@ bool PhysicsScene::Sphere2Sphere(PhysicsObject* a_obj1, PhysicsObject* a_obj2)
 
 		if (glm::length(dist) < sumOfRadii)
 		{
-			sphere1->ResolveCollision(sphere2);
+			sphere1->ResolveCollision(sphere2, 0.5f * (sphere1->GetPosition() + 
+				sphere2->GetPosition()));
 			return true;
 		}
 	}

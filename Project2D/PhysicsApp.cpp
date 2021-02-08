@@ -40,8 +40,8 @@ bool PhysicsApp::startup()
 	m_physicsScene->AddActor(ball2);
 	m_physicsScene->AddActor(plane);
 
-	ball1->ApplyForce(glm::vec2(30, 0));
-	ball2->ApplyForce(glm::vec2(-30, 0));
+	ball1->ApplyForce(glm::vec2(30, 0), ball1->GetPosition());
+	ball2->ApplyForce(glm::vec2(-30, 0), ball2->GetPosition());
 	return true;
 }
 
