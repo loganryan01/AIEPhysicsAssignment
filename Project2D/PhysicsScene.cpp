@@ -121,8 +121,7 @@ bool PhysicsScene::Sphere2Plane(PhysicsObject* a_obj1, PhysicsObject* a_obj2)
 			= glm::dot(sphere->GetVelocity(), plane->GetNormal());
 		if (intersection > 0 && velocityOutOfPlane < 0)
 		{
-			// Set sphere velocity to zero here
-			sphere->ApplyForce(-sphere->GetVelocity() * sphere->GetMass());
+			plane->ResolveCollision(sphere);
 			return true;
 		}
 	}

@@ -29,7 +29,7 @@ bool PhysicsApp::startup()
 
 	// initialize the physics scene
 	m_physicsScene = new PhysicsScene();
-	m_physicsScene->SetGravity(glm::vec2(0, 0));
+	m_physicsScene->SetGravity(glm::vec2(0, -9.82f));
 	m_physicsScene->SetTimeStep(0.01f);
 
 	Sphere* ball1 = new Sphere(glm::vec2(-20, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
