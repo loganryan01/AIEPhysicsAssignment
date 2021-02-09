@@ -1,4 +1,5 @@
 #include "Rigidbody.h"
+#include <iostream>
 
 Rigidbody::Rigidbody(ShapeType a_shapeID, glm::vec2 a_position, glm::vec2 a_velocity, 
 	float a_orientation, float a_mass, float a_angularVelocity, float a_moment) : 
@@ -15,7 +16,7 @@ Rigidbody::~Rigidbody()
 void Rigidbody::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 {
 	m_position += m_velocity * a_timeStep;
-	ApplyForce(a_gravity * m_mass * a_timeStep, m_position);
+	ApplyForce(a_gravity * m_mass * a_timeStep, glm::vec2(0, 0));
 
 	m_orientation += m_angularVelocity * a_timeStep;
 }
@@ -64,4 +65,10 @@ void Rigidbody::ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact,
 		ApplyForce(-force, a_contact - m_position);
 		a_actor2->ApplyForce(force, a_contact - a_actor2->m_position);
 	}
+}
+
+float Rigidbody::GetKineticEnergy()
+{
+	return 0.5f * (m_mass * glm::dot(m_velocity, m_velocity) + 
+		m_moment * m_angularVelocity * m_angularVelocity);
 }

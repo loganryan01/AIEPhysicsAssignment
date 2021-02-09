@@ -7,6 +7,7 @@
 
 #include "Sphere.h"
 #include "Plane.h"
+#include "Box.h"
 
 PhysicsApp::PhysicsApp() 
 {
@@ -32,16 +33,7 @@ bool PhysicsApp::startup()
 	m_physicsScene->SetGravity(glm::vec2(0, -9.82f));
 	m_physicsScene->SetTimeStep(0.01f);
 
-	Sphere* ball1 = new Sphere(glm::vec2(-20, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
-	Sphere* ball2 = new Sphere(glm::vec2(10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
-	Plane* plane = new Plane(glm::vec2(0, 1), -30);
-
-	m_physicsScene->AddActor(ball1);
-	m_physicsScene->AddActor(ball2);
-	m_physicsScene->AddActor(plane);
-
-	ball1->ApplyForce(glm::vec2(30, 0), ball1->GetPosition());
-	ball2->ApplyForce(glm::vec2(-30, 0), ball2->GetPosition());
+	BoxTest();
 	return true;
 }
 
@@ -84,4 +76,27 @@ void PhysicsApp::draw()
 	m_2dRenderer->drawText(m_font, "Press ESC to quit!", 0, 0);
 	// done drawing sprites
 	m_2dRenderer->end();
+}
+
+void PhysicsApp::BoxTest()
+{
+	Box* box = new Box(glm::vec2(10, 0), glm::vec2(0), 4.0f, 2, 2, glm::vec4(1, 0, 0, 1));
+	Plane* plane = new Plane(glm::vec2(0, 1), -30);
+
+	m_physicsScene->AddActor(box);
+	m_physicsScene->AddActor(plane);
+}
+
+void PhysicsApp::SphereTest()
+{
+	Sphere* ball1 = new Sphere(glm::vec2(-20, 0), glm::vec2(0), 4.0f, 4, glm::vec4(1, 0, 0, 1));
+	//Sphere* ball2 = new Sphere(glm::vec2(10, 0), glm::vec2(0), 4.0f, 4, glm::vec4(0, 1, 0, 1));
+	Plane* plane = new Plane(glm::vec2(0, 1), -30);
+
+	m_physicsScene->AddActor(ball1);
+	//m_physicsScene->AddActor(ball2);
+	m_physicsScene->AddActor(plane);
+
+	//ball1->ApplyForce(glm::vec2(30, 0), ball1->GetPosition());
+	//ball2->ApplyForce(glm::vec2(-30, 0), ball2->GetPosition());
 }

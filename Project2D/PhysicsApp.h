@@ -15,6 +15,9 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
+	void BoxTest();
+	void SphereTest();
+
 protected:
 	aie::Renderer2D*	m_2dRenderer;
 	aie::Font*			m_font;

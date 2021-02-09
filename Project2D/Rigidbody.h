@@ -19,7 +19,9 @@ public:
 	float GetOrientation() { return m_orientation; }
 	glm::vec2 GetVelocity() { return m_velocity; }
 	float GetMass() { return m_mass; }
+	float GetAngularVelocity() { return m_angularVelocity; }
 	float GetMoment() { return m_moment; }
+	float GetKineticEnergy();
 
 protected:
 	glm::vec2 m_position;
