@@ -1,56 +1,64 @@
 #include "Plane.h"
-#include <Gizmos.h>
-#include <iostream>
 #include "PhysicsScene.h"
+#include <Gizmos.h>
 
-Plane::Plane(glm::vec2 a_normal, float a_distance) 
-	: PhysicsObject(PLANE), m_normal(a_normal), m_distanceToOrigin(a_distance)
+Plane::Plane(glm::vec2 a_normal, float a_distance) : PhysicsObject(PLANE)
 {
-	m_colour = glm::vec4(1, 1, 1, 1);
+	m_normal = glm::normalize(a_normal);
+	m_distanceToOrigin = a_distance;
+	m_color = glm::vec4(0, 0, 1, 1);
+	m_isKinematic = true;
+	m_elasticity = 1;
+}
+
+Plane::Plane() : PhysicsObject(PLANE)
+{
+	m_normal = glm::normalize(glm::vec2(0, 1));
+	m_distanceToOrigin = 0;
+	m_color = glm::vec4(1, 1, 1, 1);
+	m_isKinematic = true;
+	m_elasticity = 1;
 }
 
 Plane::~Plane()
 {
 }
 
-void Plane::FixedUpdate(glm::vec2 a_gravity, float a_timestep)
+void Plane::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 {
 }
 
-void Plane::Draw()
+void Plane::MakeGizmo()
 {
-	float lineSegmentLength = 300;
+	float lineSegmentLength = 300.f;
 	glm::vec2 centerPoint = m_normal * m_distanceToOrigin;
-	// Easy to rotate normal through 90 degress around z
+
 	glm::vec2 parallel(m_normal.y, -m_normal.x);
-	glm::vec4 colourFade = m_colour;
-	colourFade.a = 0;
+	glm::vec4 colorFade = m_color;
+	colorFade.a = 0;
 	glm::vec2 start = centerPoint + (parallel * lineSegmentLength);
 	glm::vec2 end = centerPoint - (parallel * lineSegmentLength);
-	//aie::Gizmos::add2DLine(start, end, colour)
-	aie::Gizmos::add2DTri(start, end, start - m_normal * 10.0f, m_colour, m_colour,
-		colourFade);
-	aie::Gizmos::add2DTri(end, end - m_normal * 10.0f, start - m_normal * 10.0f,
-		m_colour, colourFade, colourFade);
+
+	/*aie::Gizmos::add2DLine(start, end, GetColor());*/
+	aie::Gizmos::add2DTri(start, end, start - GetNormal() * 10.f, GetColor(), GetColor(),
+		colorFade);
+	aie::Gizmos::add2DTri(end, end - GetNormal() * 10.f, start - GetNormal() * 10.f,
+		GetColor(), colorFade, colorFade);
 }
 
-void Plane::ResetPosition()
-{
-}
-
-void Plane::ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact)
+void Plane::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact)
 {
 	// The position at which we'll apply the force relative to the object's COM
-	glm::vec2 localContact = a_contact - a_actor2->GetPosition();
-	
+	glm::vec2 localContact = a_contact - a_otherActor->GetPosition();
+
 	// The plane isn't moving, so the relative velocity is just actor2's velocity
 	// at the contact point
-	glm::vec2 vRel = a_actor2->GetVelocity() + a_actor2->GetAngularVelocity() * 
+	glm::vec2 vRel = a_otherActor->GetVelocity() + a_otherActor->GetAngularVelocity() *
 		glm::vec2(-localContact.y, localContact.x);
 	float velocityIntoPlane = glm::dot(vRel, m_normal);
 
 	// Perfectly elasticity collisions for now
-	float e = (GetElasticity() + a_actor2->GetElasticity());
+	float e = (GetElasticity() + a_otherActor->GetElasticity());
 
 	// This is the perpendicular distance we apply the force at relative to the COM, so 
 	// Torque = F*r
@@ -59,22 +67,18 @@ void Plane::ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact)
 	// Work out the "effective mass" - this is a combination of moment of inertia and mass,
 	// and tells us how much the contact point velocity will change with the force we're
 	// applying.
-	float mass0 = 1.0f / (1.0f / a_actor2->GetMass() + (r * r) / a_actor2->GetMoment());
+	float mass0 = 1.f / (1.f / a_otherActor->GetMass() + (r * r) / a_otherActor->GetMoment());
 
-	float j = -(1 + e) * velocityIntoPlane * mass0;
+	// The plane does not move (Static) so we only use the other actor's velocity
+	float j = -(1.f + e) * velocityIntoPlane * mass0;
+	glm::vec2 force = GetNormal() * j;
+	a_otherActor->ApplyForce(force, a_contact - a_otherActor->GetPosition());
 
-	glm::vec2 force = m_normal * j;
-
-	float kePre = a_actor2->GetKineticEnergy();
-
-	a_actor2->ApplyForce(force, a_contact - a_actor2->GetPosition());
+	if (a_otherActor->m_collisionCallback)
+	{
+		a_otherActor->m_collisionCallback(this);
+	}
 
 	float pen = glm::dot(a_contact, m_normal) - m_distanceToOrigin;
-	PhysicsScene::ApplyContactForces(a_actor2, nullptr, m_normal, pen);
-
-	float kePost = a_actor2->GetKineticEnergy();
-
-	float deltaKE = kePost - kePre;
-	if (deltaKE > kePost * 0.01f)
-		std::cout << "Kinetic Energy discrepancy greater than 1% detected!!";
+	PhysicsScene::ApplyContactForces(a_otherActor, nullptr, m_normal, pen);
 }

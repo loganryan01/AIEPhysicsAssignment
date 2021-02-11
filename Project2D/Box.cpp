@@ -1,13 +1,19 @@
 #include "Box.h"
-#include <Gizmos.h>
+#include <Gizmos.cpp>
 
-Box::Box(glm::vec2 a_position, glm::vec2 a_velocity, float a_orientation, float a_mass, 
-	float a_width, float a_height, float a_angularVelocity, glm::vec4 a_colour) :
-	Rigidbody(BOX, a_position, a_velocity, a_orientation, a_mass, a_angularVelocity), 
-	m_colour(a_colour), m_extents(glm::vec2(a_width, a_height)), m_width(a_width), 
-	m_height(a_height)
+Box::Box(glm::vec2 a_position, glm::vec2 a_velocity, float a_rotation, float a_mass, 
+	float a_width, float a_height) : 
+	Rigidbody(BOX, a_position, a_velocity, a_rotation, a_mass), m_extents(a_width, a_height)
 {
-	m_moment = 1.0f / 12.0f * m_mass * m_width * m_height;
+	m_color = glm::vec4(1, 0, 0, 1);
+	m_moment = 1.0f / 3.0f * m_mass * a_width * a_height;
+}
+
+Box::Box(glm::vec2 a_position, glm::vec2 a_velocity, float a_rotation, float a_mass, float a_width, float a_height, glm::vec4 a_color)
+	: Rigidbody(BOX, a_position, a_velocity, a_rotation, a_mass), m_extents(a_width, a_height)
+{
+	m_color = a_color;
+	m_moment = 1.0f / 3.0f * m_mass * a_width * a_height;
 }
 
 Box::~Box()
@@ -18,26 +24,29 @@ void Box::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 {
 	Rigidbody::FixedUpdate(a_gravity, a_timeStep);
 
-	// Store the local axes
-	float cs = cosf(m_orientation);
-	float sn = sinf(m_orientation);
+	float cs = cosf(m_rotation);
+	float sn = sinf(m_rotation);
 	m_localX = glm::normalize(glm::vec2(cs, sn));
 	m_localY = glm::normalize(glm::vec2(-sn, cs));
 }
 
-void Box::Draw()
+void Box::MakeGizmo()
 {
-	// Draw using local axes
 	glm::vec2 p1 = m_position - m_localX * m_extents.x - m_localY * m_extents.y;
 	glm::vec2 p2 = m_position + m_localX * m_extents.x - m_localY * m_extents.y;
 	glm::vec2 p3 = m_position - m_localX * m_extents.x + m_localY * m_extents.y;
 	glm::vec2 p4 = m_position + m_localX * m_extents.x + m_localY * m_extents.y;
-	aie::Gizmos::add2DTri(p1, p2, p4, m_colour);
-	aie::Gizmos::add2DTri(p1, p4, p3, m_colour);
+
+	aie::Gizmos::add2DTri(p1, p2, p4, m_color);
+	aie::Gizmos::add2DTri(p1, p4, p3, m_color);
 }
 
-bool Box::CheckBoxCorners(const Box& a_box, glm::vec2 a_contact, int& a_numContacts,
-	float& a_pen, glm::vec2& a_edgeNormal)
+bool Box::CheckCollision(PhysicsObject* pOther)
+{
+	return false;
+}
+
+bool Box::CheckBoxCorners(const Box& a_box, glm::vec2& a_contact, int& a_numContacts, float& a_pen, glm::vec2& a_edgeNormal)
 {
 	float minX, maxX, minY, maxY;
 	float boxW = a_box.GetExtents().x * 2;
@@ -53,6 +62,7 @@ bool Box::CheckBoxCorners(const Box& a_box, glm::vec2 a_contact, int& a_numConta
 		{
 			// Get the position in the worldspace
 			glm::vec2 p = a_box.GetPosition() + x * a_box.m_localX + y * a_box.m_localY;
+
 			// Get the position in our box's square
 			glm::vec2 p0(glm::dot(p - m_position, m_localX),
 				glm::dot(p - m_position, m_localY));
@@ -118,6 +128,6 @@ bool Box::CheckBoxCorners(const Box& a_box, glm::vec2 a_contact, int& a_numConta
 		a_pen = pen0;
 		res = true;
 	}
-	
+
 	return res;
 }
