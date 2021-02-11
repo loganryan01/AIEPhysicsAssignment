@@ -1,12 +1,13 @@
 #include "Box.h"
 #include <Gizmos.h>
 
-Box::Box(glm::vec2 a_position, glm::vec2 a_velocity, float a_mass, float a_width,
-	float a_height, glm::vec4 a_colour) :
-	Rigidbody(BOX, a_position, a_velocity, 0, a_mass, 0, 1.0f / 12.0f * a_mass * a_width * a_height), 
+Box::Box(glm::vec2 a_position, glm::vec2 a_velocity, float a_orientation, float a_mass, float a_width, 
+	float a_height, float a_angularVelocity, glm::vec4 a_colour) :
+	Rigidbody(BOX, a_position, a_velocity, a_orientation, a_mass, a_angularVelocity), 
 	m_colour(a_colour), m_extents(glm::vec2(a_width, a_height)), m_width(a_width), 
 	m_height(a_height)
 {
+	m_moment = 1.0f / 12.0f * m_mass * m_width * m_height;
 }
 
 Box::~Box()
@@ -68,7 +69,7 @@ bool Box::CheckBoxCorners(const Box& a_box, glm::vec2 a_contact, int& a_numConta
 				p0.y >= -m_extents.y && p0.y <= m_extents.y)
 			{
 				numLocalContacts++;
-				localContact = p0;
+				localContact += p0;
 			}
 			first = false;
 		}

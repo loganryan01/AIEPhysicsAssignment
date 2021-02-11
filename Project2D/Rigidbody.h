@@ -5,8 +5,7 @@ class Rigidbody : public PhysicsObject
 {
 public:
 	Rigidbody(ShapeType a_shapeID, glm::vec2 a_position,
-		glm::vec2 a_velocity, float a_orientation, float a_mass, float a_angularVelocity,
-		float a_moment);
+		glm::vec2 a_velocity, float a_orientation, float a_mass, float a_angularVelocity);
 	~Rigidbody();
 
 	virtual void FixedUpdate(glm::vec2 a_gravity, float a_timeStep);
@@ -15,7 +14,7 @@ public:
 	void ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact, glm::vec2*
 	a_collisionNormal = nullptr);
 
-	glm::vec2 GetPosition() { return m_position; }
+	glm::vec2 GetPosition() const { return m_position; }
 	float GetOrientation() { return m_orientation; }
 	glm::vec2 GetVelocity() { return m_velocity; }
 	float GetMass() { return m_mass; }

@@ -2,10 +2,9 @@
 #include <iostream>
 
 Rigidbody::Rigidbody(ShapeType a_shapeID, glm::vec2 a_position, glm::vec2 a_velocity, 
-	float a_orientation, float a_mass, float a_angularVelocity, float a_moment) : 
+	float a_orientation, float a_mass, float a_angularVelocity) : 
 	PhysicsObject(a_shapeID), m_position(a_position), m_velocity(a_velocity), 
-	m_orientation(a_orientation), m_mass(a_mass), m_angularVelocity(a_angularVelocity),
-	m_moment(a_moment)
+	m_orientation(a_orientation), m_mass(a_mass), m_angularVelocity(a_angularVelocity)
 {
 }
 
@@ -42,7 +41,7 @@ void Rigidbody::ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact,
 
 	// 'r' is the radius from axis to application of force
 	float r1 = glm::dot(a_contact - m_position, -perp);
-	float r2 = glm::dot(a_contact - a_actor2->m_position, -perp);
+	float r2 = glm::dot(a_contact - a_actor2->m_position, perp);
 	// Velocity of the contact point on this object
 	float v1 = glm::dot(m_velocity, normal) - r1 * m_angularVelocity;
 	// Velocity of contact point from actor2
@@ -57,10 +56,8 @@ void Rigidbody::ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact,
 		float mass2 = 1.0f / (1.0f / a_actor2->m_mass + (r2 * r2) / a_actor2->m_moment);
 
 		float elasticity = 1;
-		glm::vec2 j = (1.0f + elasticity) * mass1 * mass2 /
+		glm::vec2 force = (1.0f + elasticity) * mass1 * mass2 /
 			(mass1 + mass2) * (v1 - v2) * normal;
-
-		glm::vec2 force = normal * j;
 
 		ApplyForce(-force, a_contact - m_position);
 		a_actor2->ApplyForce(force, a_contact - a_actor2->m_position);
