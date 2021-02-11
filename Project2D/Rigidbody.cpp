@@ -1,11 +1,17 @@
 #include "Rigidbody.h"
 #include <iostream>
 
+#define MIN_LINEAR_THRESHOLD 0.1f
+#define MIN_ANGULAR_THRESHOLD 0.01f
+
 Rigidbody::Rigidbody(ShapeType a_shapeID, glm::vec2 a_position, glm::vec2 a_velocity, 
 	float a_orientation, float a_mass, float a_angularVelocity) : 
 	PhysicsObject(a_shapeID), m_position(a_position), m_velocity(a_velocity), 
 	m_orientation(a_orientation), m_mass(a_mass), m_angularVelocity(a_angularVelocity)
 {
+	// Range for drag is 0 to 1
+	m_linearDrag = 0.3f;
+	m_angularDrag = 0.3f;
 }
 
 Rigidbody::~Rigidbody()
@@ -14,6 +20,18 @@ Rigidbody::~Rigidbody()
 
 void Rigidbody::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 {
+	m_velocity -= m_velocity * m_linearDrag * a_timeStep;
+	m_angularVelocity -= m_angularVelocity * m_angularDrag * a_timeStep;
+
+	if (glm::length(m_velocity) < MIN_LINEAR_THRESHOLD)
+	{
+		m_velocity = glm::vec2(0, 0);
+	}
+	if (glm::abs(m_angularVelocity) < MIN_LINEAR_THRESHOLD)
+	{
+		m_angularVelocity = 0;
+	}
+	
 	m_position += m_velocity * a_timeStep;
 	ApplyForce(a_gravity * m_mass * a_timeStep, glm::vec2(0, 0));
 
@@ -55,7 +73,7 @@ void Rigidbody::ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact,
 		float mass1 = 1.0f / (1.0f / m_mass + (r1 * r1) / m_moment);
 		float mass2 = 1.0f / (1.0f / a_actor2->m_mass + (r2 * r2) / a_actor2->m_moment);
 
-		float elasticity = 1;
+		float elasticity = (GetElasticity() + a_actor2->GetElasticity()) / 2.0f;
 		glm::vec2 force = (1.0f + elasticity) * mass1 * mass2 /
 			(mass1 + mass2) * (v1 - v2) * normal;
 

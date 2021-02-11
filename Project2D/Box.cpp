@@ -1,8 +1,8 @@
 #include "Box.h"
 #include <Gizmos.h>
 
-Box::Box(glm::vec2 a_position, glm::vec2 a_velocity, float a_orientation, float a_mass, float a_width, 
-	float a_height, float a_angularVelocity, glm::vec4 a_colour) :
+Box::Box(glm::vec2 a_position, glm::vec2 a_velocity, float a_orientation, float a_mass, 
+	float a_width, float a_height, float a_angularVelocity, glm::vec4 a_colour) :
 	Rigidbody(BOX, a_position, a_velocity, a_orientation, a_mass, a_angularVelocity), 
 	m_colour(a_colour), m_extents(glm::vec2(a_width, a_height)), m_width(a_width), 
 	m_height(a_height)
