@@ -96,6 +96,18 @@ void PhysicsScene::CheckForCollision()
 	}
 }
 
+void PhysicsScene::ApplyContactForces(Rigidbody* a_body1, Rigidbody* a_body2, 
+	glm::vec2 a_norm, float a_pen)
+{
+	float body2Mass = a_body2 ? a_body2->GetMass() : INT_MAX;
+
+	float body1Factor = body2Mass / (a_body1->GetMass() + body2Mass);
+
+	a_body1->SetPosition(a_body1->GetPosition() - body1Factor * a_norm * a_pen);
+	if (a_body2)
+		a_body2->SetPosition(a_body2->GetPosition() + (1 - body1Factor) * a_norm * a_pen);
+}
+
 bool PhysicsScene::Plane2Plane(PhysicsObject*, PhysicsObject*)
 {
 	return false;
@@ -197,8 +209,12 @@ bool PhysicsScene::Sphere2Sphere(PhysicsObject* a_obj1, PhysicsObject* a_obj2)
 
 		if (glm::length(dist) < sumOfRadii)
 		{
-			sphere1->ResolveCollision(sphere2, 0.5f * (sphere1->GetPosition() + 
-				sphere2->GetPosition()));
+			float penetration = sphere1->GetRadius() + sphere2->GetRadius() - glm::length(dist);
+			if (penetration > 0)
+			{
+				sphere1->ResolveCollision(sphere2, (sphere1->GetPosition() +
+					sphere2->GetPosition()) * 0.5f, nullptr, penetration);
+			}
 			return true;
 		}
 	}
@@ -240,8 +256,8 @@ bool PhysicsScene::Box2Sphere(PhysicsObject* a_obj1, PhysicsObject* a_obj2)
 		glm::vec2 closestPointOnBoxWorld = box->GetPosition() + closestPointOnBoxBox.x *
 			box->GetLocalX() + closestPointOnBoxBox.y * box->GetLocalY();
 		glm::vec2 circleToBox = sphere->GetPosition() - closestPointOnBoxWorld;
-
-		if (glm::length(circleToBox) < sphere->GetRadius())
+		float penetration = sphere->GetRadius() - glm::length(circleToBox);
+		if (penetration > 0)
 		{
 			glm::vec2 direction = glm::normalize(circleToBox);
 			glm::vec2 contact = closestPointOnBoxWorld;
@@ -270,7 +286,7 @@ bool PhysicsScene::Box2Box(PhysicsObject* a_obj1, PhysicsObject* a_obj2)
 		}
 		if (pen > 0)
 		{
-			box1->ResolveCollision(box2, contact / float(numContacts), &norm);
+			box1->ResolveCollision(box2, contact / float(numContacts), &norm, pen);
 		}
 		return true;
 	}

@@ -1,5 +1,6 @@
 #include "Rigidbody.h"
 #include <iostream>
+#include "PhysicsScene.h"
 
 #define MIN_LINEAR_THRESHOLD 0.1f
 #define MIN_ANGULAR_THRESHOLD 0.01f
@@ -33,7 +34,7 @@ void Rigidbody::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 	}
 	
 	m_position += m_velocity * a_timeStep;
-	ApplyForce(a_gravity * m_mass * a_timeStep, glm::vec2(0, 0));
+	ApplyForce(a_gravity * m_mass * a_timeStep, glm::vec2(0));
 
 	m_orientation += m_angularVelocity * a_timeStep;
 }
@@ -45,7 +46,7 @@ void Rigidbody::ApplyForce(glm::vec2 a_force, glm::vec2 a_position)
 }
 
 void Rigidbody::ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact, 
-	glm::vec2* a_collisionNormal)
+	glm::vec2* a_collisionNormal, float a_pen)
 {
 	// Find the vector between their centres, or use the provided direction 
 	// of force, and make sure it's normalised
@@ -74,11 +75,17 @@ void Rigidbody::ResolveCollision(Rigidbody* a_actor2, glm::vec2 a_contact,
 		float mass2 = 1.0f / (1.0f / a_actor2->m_mass + (r2 * r2) / a_actor2->m_moment);
 
 		float elasticity = (GetElasticity() + a_actor2->GetElasticity()) / 2.0f;
+
 		glm::vec2 force = (1.0f + elasticity) * mass1 * mass2 /
 			(mass1 + mass2) * (v1 - v2) * normal;
 
 		ApplyForce(-force, a_contact - m_position);
 		a_actor2->ApplyForce(force, a_contact - a_actor2->m_position);
+
+		if (a_pen > 0)
+		{
+			PhysicsScene::ApplyContactForces(this, a_actor2, normal, a_pen);
+		}
 	}
 }
 

@@ -81,8 +81,11 @@ void PhysicsApp::draw()
 
 void PhysicsApp::BoxTest()
 {
-	Box* box = new Box(glm::vec2(10, 0), glm::vec2(0), 4.0f, 0, 2, 2, 0, glm::vec4(1, 0, 0, 1));
+	Box* box = new Box(glm::vec2(10, 0), glm::vec2(1), 0, 4, 2, 2, 0, glm::vec4(1, 0, 0, 1));
 	Plane* plane = new Plane(glm::vec2(0, 1), -30);
+
+	box->SetElasticity(0.3f);
+	plane->SetElasticity(0);
 
 	m_physicsScene->AddActor(box);
 	m_physicsScene->AddActor(plane);
@@ -90,8 +93,8 @@ void PhysicsApp::BoxTest()
 
 void PhysicsApp::SphereTest()
 {
-	Sphere* ball1 = new Sphere(glm::vec2(-20, 0), glm::vec2(0), 0, 4, 0, 4, glm::vec4(1, 0, 0, 1));
-	Sphere* ball2 = new Sphere(glm::vec2(10, 0), glm::vec2(0), 0, 4, 0, 4,  glm::vec4(0, 1, 0, 1));
+	Sphere* ball1 = new Sphere(glm::vec2(-20, 0), glm::vec2(1), 0, 4, 0, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball2 = new Sphere(glm::vec2(10, 0), glm::vec2(1), 0, 4, 0, 4,  glm::vec4(0, 1, 0, 1));
 	Plane* plane = new Plane(glm::vec2(0, 1), -30);
 
 	ball1->SetElasticity(0.3f);
@@ -101,7 +104,4 @@ void PhysicsApp::SphereTest()
 	m_physicsScene->AddActor(ball1);
 	m_physicsScene->AddActor(ball2);
 	m_physicsScene->AddActor(plane);
-
-	ball1->ApplyForce(glm::vec2(30, 0), ball1->GetPosition());
-	ball2->ApplyForce(glm::vec2(-30, 0), ball2->GetPosition());
 }
