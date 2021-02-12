@@ -197,11 +197,10 @@ bool PhysicsScene::Sphere2Plane(PhysicsObject* objSphere, PhysicsObject* objPlan
 	{
 		glm::vec2 collisionNormal = plane->GetNormal();
 		float sphereToPlane = glm::dot(sphere->GetPosition(), collisionNormal)
-			- plane->GetDistance() /*- sphere->GetRadius()*/;
+			- plane->GetDistance();
 
 		float intersection = sphere->GetRadius() - sphereToPlane;
-		float velocityOutOfPlane
-			= glm::dot(sphere->GetVelocity(), collisionNormal);
+		float velocityOutOfPlane = glm::dot(sphere->GetVelocity(), collisionNormal);
 		if (intersection > 0 && velocityOutOfPlane < 0)
 		{
 			glm::vec2 contact = sphere->GetPosition() + (collisionNormal * -sphere->GetRadius());
@@ -220,7 +219,7 @@ bool PhysicsScene::Sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 
 	if (sphere1 != nullptr && sphere2 != nullptr)
 	{
-		float dist = glm::distance(sphere1->GetPosition(), sphere2->GetPosition());
+		float dist = glm::distance(sphere2->GetPosition(), sphere1->GetPosition());
 
 		float penetration = sphere1->GetRadius() + sphere2->GetRadius() - dist;
 		if (penetration > 0)

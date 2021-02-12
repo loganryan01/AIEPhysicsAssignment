@@ -2,11 +2,11 @@
 #include "PhysicsScene.h"
 #include <Gizmos.h>
 
-Plane::Plane(glm::vec2 a_normal, float a_distance) : PhysicsObject(PLANE)
+Plane::Plane(glm::vec2 a_normal, float a_distance, glm::vec4 a_color) : PhysicsObject(PLANE)
 {
 	m_normal = glm::normalize(a_normal);
 	m_distanceToOrigin = a_distance;
-	m_color = glm::vec4(0, 0, 1, 1);
+	m_color = a_color;
 	m_isKinematic = true;
 	m_elasticity = 1;
 }
@@ -55,14 +55,14 @@ void Plane::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact)
 	// at the contact point
 	glm::vec2 vRel = a_otherActor->GetVelocity() + a_otherActor->GetAngularVelocity() *
 		glm::vec2(-localContact.y, localContact.x);
-	float velocityIntoPlane = glm::dot(vRel, m_normal);
+	float velocityIntoPlane = glm::dot(vRel, GetNormal());
 
 	// Perfectly elasticity collisions for now
 	float e = (GetElasticity() + a_otherActor->GetElasticity());
 
 	// This is the perpendicular distance we apply the force at relative to the COM, so 
 	// Torque = F*r
-	float r = glm::dot(localContact, glm::vec2(m_normal.y, -m_normal.x));
+	float r = glm::dot(localContact, glm::vec2(GetNormal().y, -GetNormal().x));
 
 	// Work out the "effective mass" - this is a combination of moment of inertia and mass,
 	// and tells us how much the contact point velocity will change with the force we're
@@ -71,7 +71,9 @@ void Plane::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact)
 
 	// The plane does not move (Static) so we only use the other actor's velocity
 	float j = -(1.f + e) * velocityIntoPlane * mass0;
+
 	glm::vec2 force = GetNormal() * j;
+
 	a_otherActor->ApplyForce(force, a_contact - a_otherActor->GetPosition());
 
 	if (a_otherActor->m_collisionCallback)
@@ -79,6 +81,6 @@ void Plane::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact)
 		a_otherActor->m_collisionCallback(this);
 	}
 
-	float pen = glm::dot(a_contact, m_normal) - m_distanceToOrigin;
-	PhysicsScene::ApplyContactForces(a_otherActor, nullptr, m_normal, pen);
+	float pen = glm::dot(a_contact, GetNormal()) - GetDistance();
+	PhysicsScene::ApplyContactForces(a_otherActor, nullptr, GetNormal(), pen);
 }

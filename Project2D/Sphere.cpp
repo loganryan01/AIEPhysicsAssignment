@@ -6,7 +6,7 @@ Sphere::Sphere(glm::vec2 a_position, glm::vec2 a_velocity, float a_mass, float a
 {
 	m_radius = a_radius;
 	m_color = a_color;
-	m_moment = 0.5f * m_mass * m_mass * m_radius;
+	m_moment = 0.5f * m_mass * m_radius * m_radius;
 }
 
 void Sphere::MakeGizmo()
@@ -15,7 +15,7 @@ void Sphere::MakeGizmo()
 		m_radius;
 
 	aie::Gizmos::add2DCircle(m_position, m_radius, 12, m_color);
-	aie::Gizmos::add2DLine(m_position, m_position + end, glm::vec4(1, 1, 1, 1));
+	aie::Gizmos::add2DLine(m_position, m_position + end, glm::vec4(0, 0, 0, 1));
 }
 
 bool Sphere::IsInside(glm::vec2 a_point)

@@ -15,12 +15,18 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
-	void BoxTest();
-	void SphereTest();
+	glm::vec2 ScreenToWorld(glm::vec2 a_screenPos);
+
+	void PachinkoScene();
 
 protected:
 	aie::Renderer2D*	m_2dRenderer;
 	aie::Font*			m_font;
 
 	PhysicsScene*		m_physicsScene;
+
+	const float m_aspectRatio = 3.f / 4.f;
+	const float m_extents = 100;
+
+	int m_availableSpheres;
 };

@@ -15,8 +15,8 @@ Rigidbody::Rigidbody(ShapeType a_shapeID, glm::vec2 a_position, glm::vec2 a_velo
 	m_isKinematic = false;
 	m_isTrigger = false;
 	m_elasticity = 0.8f;
-	m_linearDrag = 0.3f;
-	m_angularDrag = 0.3f;
+	m_linearDrag = 1.f;
+	m_angularDrag = 1.f;
 }
 
 void Rigidbody::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
@@ -65,7 +65,7 @@ void Rigidbody::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 		}
 
 	}
-	if (abs(m_angularVelocity) < 0.001f)
+	if (abs(m_angularVelocity) < 0.01f)
 	{
 		m_angularVelocity = 0;
 	}
@@ -79,7 +79,19 @@ void Rigidbody::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 void Rigidbody::ApplyForce(glm::vec2 a_force, glm::vec2 a_pos)
 {
 	m_velocity += a_force / GetMass();
-	m_angularVelocity += (a_force.y * a_pos.x - a_force.x * a_pos.y) / GetMoment();
+
+	if (m_shapeID == SPHERE)
+	{
+		m_angularVelocity += (a_force.y * a_pos.x + a_force.x * a_pos.y) / GetMoment();
+
+		/*if (a_force.y == 0)
+			m_angularVelocity = 0;*/
+	}
+	else
+	{
+		m_angularVelocity += (a_force.y * a_pos.x - a_force.x * a_pos.y) / GetMoment();
+	}
+	
 }
 
 void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, glm::vec2* a_collisionNormal, float a_pen)
@@ -101,7 +113,7 @@ void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, g
 	float radius1 = glm::dot(a_contact - m_position, -perpendicularColNorm);
 	float radius2 = glm::dot(a_contact - a_otherActor->m_position, perpendicularColNorm);
 	// Velocity of the contact point on this object
-	float cp_velocity1 = glm::dot(m_velocity, normal) - radius1 * m_angularVelocity;
+ 	float cp_velocity1 = glm::dot(m_velocity, normal) - radius1 * m_angularVelocity;
 	// Velocity of contact point from other actor
 	float cp_velocity2 = glm::dot(a_otherActor->GetVelocity(), normal) + radius2 * a_otherActor->m_angularVelocity;
 
@@ -109,17 +121,17 @@ void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, g
 	{
 		// Calculate the effective mass at contact point for each object
 		// ie how much the contact point will move due to the force applied.
-		float mass1 = 1.f / (1.f / m_mass + (radius1 * radius1) / GetMoment());
-		float mass2 = 1.f / (1.f / a_otherActor->m_mass + (radius2 * radius2)
+		float mass1 = 1.f / (1.f / GetMass() + (radius1 * radius1) / GetMoment());
+		float mass2 = 1.f / (1.f / a_otherActor->GetMass() + (radius2 * radius2)
 			/ a_otherActor->GetMoment());
 
 		float elasticity = (m_elasticity + a_otherActor->GetElasticity()) / 2.f;
 		glm::vec2 impact = (1.f + elasticity) * mass1 * mass2
-			/ (mass1 + mass2) + (cp_velocity1 - cp_velocity2) * normal;
+			/ (mass1 + mass2) * (cp_velocity1 - cp_velocity2) * normal;
 
 		if (!m_isTrigger && !a_otherActor->IsTrigger())
 		{
-			ApplyForce(-impact, a_contact - m_position);
+ 			ApplyForce(-impact, a_contact - GetPosition());
 			a_otherActor->ApplyForce(impact, a_contact - a_otherActor->GetPosition());
 
 			if (m_collisionCallback != nullptr)
@@ -137,7 +149,7 @@ void Rigidbody::ResolveCollision(Rigidbody* a_otherActor, glm::vec2 a_contact, g
 			a_otherActor->TriggerEntered(this);
 		}
 
-		if (a_pen > 0)
+		if (a_pen >= 0)
 			PhysicsScene::ApplyContactForces(this, a_otherActor, normal, a_pen);
 	}
 }

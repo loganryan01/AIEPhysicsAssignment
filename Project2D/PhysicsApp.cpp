@@ -11,7 +11,7 @@
 
 PhysicsApp::PhysicsApp() 
 {
-
+	
 }
 
 PhysicsApp::~PhysicsApp() 
@@ -30,11 +30,10 @@ bool PhysicsApp::startup()
 
 	// initialize the physics scene
 	m_physicsScene = new PhysicsScene();
-	m_physicsScene->SetGravity(glm::vec2(0, -9.82f));
+	m_physicsScene->SetGravity(glm::vec2(0, -10));
 	m_physicsScene->SetTimeStep(0.01f);
 
-	SphereTest();
-	//BoxTest();
+	PachinkoScene();
 	return true;
 }
 
@@ -55,6 +54,19 @@ void PhysicsApp::update(float deltaTime)
 	m_physicsScene->Update(deltaTime);
 	m_physicsScene->Draw();
 
+	if (input->isMouseButtonDown(0) && m_availableSpheres > 0)
+	{
+		m_availableSpheres--;
+		
+		int xScreen, yScreen;
+		input->getMouseXY(&xScreen, &yScreen);
+		glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
+		//aie::Gizmos::add2DCircle(worldPos, 5, 32, glm::vec4(0.3));
+		Sphere* ball = new Sphere(worldPos, glm::vec2(0), 10, 4, glm::vec4(0, 1, 0, 1));
+		ball->SetElasticity(0.3f);
+		m_physicsScene->AddActor(ball);
+	}
+
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
 		quit();
@@ -69,9 +81,8 @@ void PhysicsApp::draw()
 	m_2dRenderer->begin();
 
 	// draw your stuff here!
-	static float aspectRatio = 16 / 9.f;
-	aie::Gizmos::draw2D(glm::ortho<float>(-100, 100,
-		-100 / aspectRatio, 100 / aspectRatio, -1.0f, 1.0f));
+	aie::Gizmos::draw2D(glm::ortho<float>(-m_extents, m_extents,
+		-m_extents / m_aspectRatio, m_extents / m_aspectRatio, -1.f, 1.f));
 	
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit!", 0, 0);
@@ -79,29 +90,73 @@ void PhysicsApp::draw()
 	m_2dRenderer->end();
 }
 
-void PhysicsApp::BoxTest()
+glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 a_screenPos)
 {
-	Box* box = new Box(glm::vec2(10, 0), glm::vec2(1), 0, 4, 2, 2, 0, glm::vec4(1, 0, 0, 1));
-	Plane* plane = new Plane(glm::vec2(0, 1), -30);
+	glm::vec2 worldPos = a_screenPos;
 
-	box->SetElasticity(0.3f);
-	plane->SetElasticity(0);
+	// We will move the center of the screen to (0,0)
+	worldPos.x -= getWindowWidth() / 2;
+	worldPos.y -= getWindowHeight() / 2;
 
-	m_physicsScene->AddActor(box);
-	m_physicsScene->AddActor(plane);
+	// Scale this according to the extents
+	worldPos.x *= 2.f * m_extents / getWindowWidth();
+	worldPos.y *= 2.f * m_extents / getWindowHeight() / m_aspectRatio;
+
+	return worldPos;
 }
 
-void PhysicsApp::SphereTest()
+void PhysicsApp::PachinkoScene()
 {
-	Sphere* ball1 = new Sphere(glm::vec2(-20, 0), glm::vec2(1), 0, 4, 0, 4, glm::vec4(1, 0, 0, 1));
-	Sphere* ball2 = new Sphere(glm::vec2(10, 0), glm::vec2(1), 0, 4, 0, 4,  glm::vec4(0, 1, 0, 1));
-	Plane* plane = new Plane(glm::vec2(0, 1), -30);
+	m_availableSpheres = 5;
+	
+	Plane* plane1 = new Plane(glm::vec2(0, 1), -125, glm::vec4(0.59, 0.29, 0, 1));
+	Plane* plane2 = new Plane(glm::vec2(0, -1), -125, glm::vec4(0.59, 0.29, 0, 1));
+	Plane* plane3 = new Plane(glm::vec2(1, 0), -90, glm::vec4(0.59, 0.29, 0, 1));
+	Plane* plane4 = new Plane(glm::vec2(-1, 0), -90, glm::vec4(0.59, 0.29, 0, 1));
 
-	ball1->SetElasticity(0.3f);
-	ball2->SetElasticity(0.3f);
-	plane->SetElasticity(0);
+	m_physicsScene->AddActor(plane1);
+	m_physicsScene->AddActor(plane2);
+	m_physicsScene->AddActor(plane3);
+	m_physicsScene->AddActor(plane4);
 
-	m_physicsScene->AddActor(ball1);
-	m_physicsScene->AddActor(ball2);
-	m_physicsScene->AddActor(plane);
+	Sphere* ball = new Sphere(glm::vec2(10, 100), glm::vec2(0), 10, 4, glm::vec4(0, 1, 0, 1));
+	ball->SetElasticity(0.3f);
+	m_physicsScene->AddActor(ball);
+
+	/*Sphere* ball1 = new Sphere(glm::vec2(10, 80), glm::vec2(0, 40), 10, 5, glm::vec4(0, 1, 0, 1));
+	ball1->SetElasticity(1);
+	ball1->SetKinematic(true);
+	m_physicsScene->AddActor(ball1);*/
+
+	for (int i = 0; i < 5; i++)
+	{
+		Box* box = new Box(glm::vec2(-56 + (i * 28), -110), glm::vec2(0), 0, 4, 4, 15);
+		box->SetKinematic(true);
+		m_physicsScene->AddActor(box);
+	}
+
+	int rows = 4;
+	int columns = 6;
+
+	for (int y = 0; y < rows; y++)
+	{
+		for (int x = 0; x < columns; x++)
+		{
+			Sphere* sphere = new Sphere(glm::vec2((28 * x) - 70, (-40 * y) + 50), glm::vec2(0), 1, 4, glm::vec4(1, 0, 0, 1));
+			sphere->SetElasticity(1);
+			sphere->SetKinematic(true);
+			m_physicsScene->AddActor(sphere);
+		}
+	}
+
+	for (int y = 0; y < rows; y++)
+	{
+		for (int x = 0; x < columns - 1; x++)
+		{
+			Sphere* sphere = new Sphere(glm::vec2((28 * x) - 56, (-40 * y) + 30), glm::vec2(0), 1, 4, glm::vec4(1, 0, 0, 1));
+			sphere->SetElasticity(1);
+			sphere->SetKinematic(true);
+			m_physicsScene->AddActor(sphere);
+		}
+	}
 }

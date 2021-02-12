@@ -1,6 +1,6 @@
 #pragma once
-
 #include "Rigidbody.h"
+
 class Sphere : public Rigidbody
 {
 public:
@@ -16,4 +16,4 @@ public:
 protected:
 	float m_radius;
 	glm::vec4 m_color;
-}
+};
