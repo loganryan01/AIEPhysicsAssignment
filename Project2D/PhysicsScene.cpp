@@ -226,6 +226,7 @@ bool PhysicsScene::Sphere2Sphere(PhysicsObject* obj1, PhysicsObject* obj2)
 		{
 			sphere1->ResolveCollision(sphere2, 0.5f * (sphere1->GetPosition() +
 				sphere2->GetPosition()), nullptr, penetration);
+
 			return true;
 		}
 	}

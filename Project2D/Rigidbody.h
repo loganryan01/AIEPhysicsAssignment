@@ -28,6 +28,7 @@ public:
 
 	float SetRotation(float a_rotate) { return m_rotation = a_rotate; }
 	glm::vec2 SetPosition(glm::vec2 a_position) { return m_position = a_position; }
+	glm::vec2 SetVelocity(glm::vec2 a_velocity) { return m_velocity = a_velocity; }
 
 	glm::vec2 ToWorld(glm::vec2 a_localPos);
 
