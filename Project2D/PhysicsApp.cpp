@@ -54,7 +54,7 @@ void PhysicsApp::update(float deltaTime)
 	m_physicsScene->Update(deltaTime);
 	m_physicsScene->Draw();
 
-	if (input->isMouseButtonDown(0) && m_availableSpheres > 0)
+	if (input->wasMouseButtonPressed(0) && m_availableSpheres > 0)
 	{
 		m_availableSpheres--;
 		
@@ -83,8 +83,12 @@ void PhysicsApp::draw()
 	aie::Gizmos::draw2D(glm::ortho<float>(-m_extents, m_extents,
 		-m_extents / m_aspectRatio, m_extents / m_aspectRatio, -1.f, 1.f));
 	
+	char balls[100] = "";
+	std::sprintf(balls, "Balls Remaining: %d", m_availableSpheres);
+
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit!", 0, 0);
+	m_2dRenderer->drawText(m_font, balls, 325, 850);
 	// done drawing sprites
 	m_2dRenderer->end();
 }
