@@ -30,7 +30,7 @@ bool PhysicsApp::startup()
 
 	// initialize the physics scene
 	m_physicsScene = new PhysicsScene();
-	m_physicsScene->SetGravity(glm::vec2(0, -10));
+	m_physicsScene->SetGravity(glm::vec2(0, -20));
 	m_physicsScene->SetTimeStep(0.01f);
 
 	PachinkoScene();
@@ -61,9 +61,8 @@ void PhysicsApp::update(float deltaTime)
 		int xScreen, yScreen;
 		input->getMouseXY(&xScreen, &yScreen);
 		glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
-		//aie::Gizmos::add2DCircle(worldPos, 5, 32, glm::vec4(0.3));
-		Sphere* ball = new Sphere(worldPos, glm::vec2(0), 10, 4, glm::vec4(0, 1, 0, 1));
-		ball->SetElasticity(0.3f);
+		Sphere* ball = new Sphere(worldPos, glm::vec2(0), 1, 4, glm::vec4(0, 1, 0, 1));
+		ball->SetElasticity(0.f);
 		m_physicsScene->AddActor(ball);
 	}
 
@@ -119,30 +118,25 @@ void PhysicsApp::PachinkoScene()
 	m_physicsScene->AddActor(plane3);
 	m_physicsScene->AddActor(plane4);
 
-	Sphere* ball = new Sphere(glm::vec2(10, 100), glm::vec2(0), 10, 4, glm::vec4(0, 1, 0, 1));
-	ball->SetElasticity(0.3f);
+	Sphere* ball = new Sphere(glm::vec2(10, 100), glm::vec2(0), 1, 4, glm::vec4(0, 1, 0, 1));
+	ball->SetElasticity(0.f);
 	m_physicsScene->AddActor(ball);
-
-	/*Sphere* ball1 = new Sphere(glm::vec2(10, 80), glm::vec2(0, 40), 10, 5, glm::vec4(0, 1, 0, 1));
-	ball1->SetElasticity(1);
-	ball1->SetKinematic(true);
-	m_physicsScene->AddActor(ball1);*/
 
 	for (int i = 0; i < 5; i++)
 	{
-		Box* box = new Box(glm::vec2(-56 + (i * 28), -110), glm::vec2(0), 0, 4, 4, 15);
+		Box* box = new Box(glm::vec2(-68 + (i * 32), -110), glm::vec2(0), 0, 4, 4, 15);
 		box->SetKinematic(true);
 		m_physicsScene->AddActor(box);
 	}
 
 	int rows = 4;
-	int columns = 6;
+	int columns = 11;
 
 	for (int y = 0; y < rows; y++)
 	{
 		for (int x = 0; x < columns; x++)
 		{
-			Sphere* sphere = new Sphere(glm::vec2((28 * x) - 70, (-40 * y) + 50), glm::vec2(0), 1, 4, glm::vec4(1, 0, 0, 1));
+			Sphere* sphere = new Sphere(glm::vec2((16 * x) - 76, (-40 * y) + 50), glm::vec2(0), 1, 4, glm::vec4(1, 0, 0, 1));
 			sphere->SetElasticity(1);
 			sphere->SetKinematic(true);
 			m_physicsScene->AddActor(sphere);
@@ -151,9 +145,9 @@ void PhysicsApp::PachinkoScene()
 
 	for (int y = 0; y < rows; y++)
 	{
-		for (int x = 0; x < columns - 1; x++)
+		for (int x = 0; x < columns; x++)
 		{
-			Sphere* sphere = new Sphere(glm::vec2((28 * x) - 56, (-40 * y) + 30), glm::vec2(0), 1, 4, glm::vec4(1, 0, 0, 1));
+			Sphere* sphere = new Sphere(glm::vec2((16 * x) - 84, (-40 * y) + 30), glm::vec2(0), 1, 4, glm::vec4(1, 0, 0, 1));
 			sphere->SetElasticity(1);
 			sphere->SetKinematic(true);
 			m_physicsScene->AddActor(sphere);
