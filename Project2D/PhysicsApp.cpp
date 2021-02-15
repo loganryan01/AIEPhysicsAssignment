@@ -4,6 +4,7 @@
 #include "Input.h"
 #include <Gizmos.h>
 #include <glm\ext.hpp>
+#include <fstream>
 
 #include "Sphere.h"
 #include "Plane.h"
@@ -71,6 +72,18 @@ void PhysicsApp::update(float deltaTime)
 		}
 	}
 
+	if (m_usedSpheres == 5)
+	{
+		if (m_playerScore > m_highScore)
+		{
+			std::ofstream newHighscoreFile("Highscore.txt");
+
+			newHighscoreFile << m_playerScore;
+
+			newHighscoreFile.close();
+		}
+	}
+
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
 		quit();
@@ -95,6 +108,10 @@ void PhysicsApp::draw()
 	char playerScore[100] = "";
 	std::sprintf(playerScore, "Score: %d", m_playerScore);
 	m_2dRenderer->drawText(m_font, playerScore, 33, 850);
+
+	char highscore[100] = "";
+	std::sprintf(highscore, "Highscore: %d", m_highScore);
+	m_2dRenderer->drawText(m_font, highscore, 33, 820);
 
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit!", 0, 0);
@@ -128,6 +145,29 @@ glm::vec2 PhysicsApp::ScreenToWorld(glm::vec2 a_screenPos)
 void PhysicsApp::PachinkoScene()
 {
 	m_availableSpheres = 5;
+
+	//----- Get Highscore -----
+	int x;
+
+	std::ifstream highscoreFile("Highscore.txt");
+
+	if (!highscoreFile)
+	{
+		std::ofstream newHighscoreFile("Highscore.txt");
+
+		newHighscoreFile << m_highScore;
+
+		newHighscoreFile.close();
+	}
+	else
+	{
+		while (highscoreFile >> x)
+		{
+			m_highScore = x;
+		}
+	}
+
+	highscoreFile.close();
 	
 	Plane* plane1 = new Plane(glm::vec2(0, 1), -125, glm::vec4(0.59, 0.29, 0, 1));
 	Plane* plane2 = new Plane(glm::vec2(0, -1), -125, glm::vec4(0.59, 0.29, 0, 1));
@@ -150,6 +190,7 @@ void PhysicsApp::PachinkoScene()
 	triggerBox->m_triggerEnter = [=](PhysicsObject* other) {
 		// Update score here
 		m_playerScore += m_scores[0];
+		m_usedSpheres++;
 	};
 	triggerBox->SetTrigger(true);
 	triggerBox->SetKinematic(true);
@@ -161,6 +202,7 @@ void PhysicsApp::PachinkoScene()
 		box->m_triggerEnter = [=](PhysicsObject* other) {
 			// Update score here
 			m_playerScore += m_scores[i + 1];
+			m_usedSpheres++;
 		};
 		box->SetTrigger(true);
 		box->SetKinematic(true);
