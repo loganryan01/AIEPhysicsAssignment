@@ -29,4 +29,6 @@ protected:
 	const float m_extents = 100;
 
 	int m_availableSpheres;
+	int m_playerScore = 0;
+	int m_scores[6] = { 10, 0, 2, 5, 1, 4 };
 };

@@ -56,14 +56,19 @@ void PhysicsApp::update(float deltaTime)
 
 	if (input->wasMouseButtonPressed(0) && m_availableSpheres > 0)
 	{
-		m_availableSpheres--;
-		
 		int xScreen, yScreen;
 		input->getMouseXY(&xScreen, &yScreen);
 		glm::vec2 worldPos = ScreenToWorld(glm::vec2(xScreen, yScreen));
-		Sphere* ball = new Sphere(worldPos, glm::vec2(0), 1, 4, glm::vec4(0, 1, 0, 1));
-		ball->SetElasticity(0.f);
-		m_physicsScene->AddActor(ball);
+
+		if (worldPos.x >= -89 && worldPos.x <= 85 &&
+			worldPos.y >= 64 && worldPos.y <= 125)
+		{
+			m_availableSpheres--;
+
+			Sphere* ball = new Sphere(worldPos, glm::vec2(0), 1, 4, glm::vec4(0, 1, 0, 1));
+			ball->SetElasticity(0.f);
+			m_physicsScene->AddActor(ball);
+		}
 	}
 
 	// exit the application
@@ -85,10 +90,22 @@ void PhysicsApp::draw()
 	
 	char balls[100] = "";
 	std::sprintf(balls, "Balls Remaining: %d", m_availableSpheres);
+	m_2dRenderer->drawText(m_font, balls, 325, 850);
+
+	char playerScore[100] = "";
+	std::sprintf(playerScore, "Score: %d", m_playerScore);
+	m_2dRenderer->drawText(m_font, playerScore, 33, 850);
 
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit!", 0, 0);
-	m_2dRenderer->drawText(m_font, balls, 325, 850);
+
+	m_2dRenderer->drawText(m_font, "10", 45, 70);
+	m_2dRenderer->drawText(m_font, "0", 150, 70);
+	m_2dRenderer->drawText(m_font, "2", 255, 70);
+	m_2dRenderer->drawText(m_font, "5", 370, 70);
+	m_2dRenderer->drawText(m_font, "1", 475, 70);
+	m_2dRenderer->drawText(m_font, "4", 585, 70);
+
 	// done drawing sprites
 	m_2dRenderer->end();
 }
@@ -122,13 +139,30 @@ void PhysicsApp::PachinkoScene()
 	m_physicsScene->AddActor(plane3);
 	m_physicsScene->AddActor(plane4);
 
-	Sphere* ball = new Sphere(glm::vec2(10, 100), glm::vec2(0), 1, 4, glm::vec4(0, 1, 0, 1));
-	ball->SetElasticity(0.f);
-	m_physicsScene->AddActor(ball);
+	for (int i = 0; i < 5; i++)
+	{
+		Box* box = new Box(glm::vec2(-68 + (i * 32), -110), glm::vec2(0), 0, 4, 4, 15, glm::vec4(1, 0, 0, 1));
+		box->SetKinematic(true);
+		m_physicsScene->AddActor(box);
+	}
+
+	Box* triggerBox = new Box(glm::vec2(-82, -110), glm::vec2(0), 0, 4, 8, 15, glm::vec4(0));
+	triggerBox->m_triggerEnter = [=](PhysicsObject* other) {
+		// Update score here
+		m_playerScore += m_scores[0];
+	};
+	triggerBox->SetTrigger(true);
+	triggerBox->SetKinematic(true);
+	m_physicsScene->AddActor(triggerBox);
 
 	for (int i = 0; i < 5; i++)
 	{
-		Box* box = new Box(glm::vec2(-68 + (i * 32), -110), glm::vec2(0), 0, 4, 4, 15);
+		Box* box = new Box(glm::vec2(-52 + (i * 32), -110), glm::vec2(0), 0, 4, 12, 15, glm::vec4(0));
+		box->m_triggerEnter = [=](PhysicsObject* other) {
+			// Update score here
+			m_playerScore += m_scores[i + 1];
+		};
+		box->SetTrigger(true);
 		box->SetKinematic(true);
 		m_physicsScene->AddActor(box);
 	}
