@@ -31,7 +31,7 @@ bool PhysicsApp::startup()
 
 	// initialize the physics scene
 	m_physicsScene = new PhysicsScene();
-	m_physicsScene->SetGravity(glm::vec2(0, -20));
+	m_physicsScene->SetGravity(glm::vec2(0, -100));
 	m_physicsScene->SetTimeStep(0.01f);
 
 	PachinkoScene();

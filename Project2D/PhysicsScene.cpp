@@ -15,7 +15,7 @@ static fn collisionFunctionArray[] =
 {
 	PhysicsScene::Plane2Plane, PhysicsScene::Plane2Sphere, PhysicsScene::Plane2Box,
 	PhysicsScene::Sphere2Plane, PhysicsScene::Sphere2Sphere, PhysicsScene::Sphere2Box,
-	PhysicsScene::Box2Plane, PhysicsScene::Box22Sphere, PhysicsScene::Box2Box
+	PhysicsScene::Box2Plane, PhysicsScene::Box2Sphere, PhysicsScene::Box2Box
 };
 
 PhysicsScene::PhysicsScene() : m_timeStep(0.01f), m_gravity(glm::vec2(0, 0))
@@ -276,7 +276,7 @@ bool PhysicsScene::Box2Plane(PhysicsObject* objBox, PhysicsObject* objPlane)
 	return Plane2Box(objPlane, objBox);
 }
 
-bool PhysicsScene::Box22Sphere(PhysicsObject* objBox, PhysicsObject* objSphere)
+bool PhysicsScene::Box2Sphere(PhysicsObject* objBox, PhysicsObject* objSphere)
 {
 	return Sphere2Box(objSphere, objBox);
 }
