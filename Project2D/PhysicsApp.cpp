@@ -68,6 +68,14 @@ void PhysicsApp::update(float deltaTime)
 
 			Sphere* ball = new Sphere(worldPos, glm::vec2(0), 1, 4, glm::vec4(0, 1, 0, 1));
 			ball->SetElasticity(0.f);
+			ball->m_collisionCallback = [=](PhysicsObject* other)
+			{
+				// plane1 is the first item in the actors list
+				if (other == m_physicsScene->GetActors()[0])
+				{
+					m_physicsScene->RemoveActor(ball);
+				}
+			};
 			m_physicsScene->AddActor(ball);
 		}
 	}
@@ -81,6 +89,15 @@ void PhysicsApp::update(float deltaTime)
 			newHighscoreFile << m_playerScore;
 
 			newHighscoreFile.close();
+
+			m_highScore = m_playerScore;
+		}
+
+		if (input->wasKeyPressed(aie::INPUT_KEY_SPACE))
+		{
+			m_usedSpheres = 0;
+			m_availableSpheres = 5;
+			m_playerScore = 0;
 		}
 	}
 
@@ -112,6 +129,16 @@ void PhysicsApp::draw()
 	char highscore[100] = "";
 	std::sprintf(highscore, "Highscore: %d", m_highScore);
 	m_2dRenderer->drawText(m_font, highscore, 33, 820);
+
+	if (m_usedSpheres == 5)
+	{
+		if (m_playerScore >= m_highScore)
+		{
+			m_2dRenderer->drawText(m_font, "New HighScore!!!", 225, 750);
+		}
+
+		m_2dRenderer->drawText(m_font, "Press Spacebar to reset!", 150, 720);
+	}
 
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit!", 0, 0);
@@ -210,27 +237,50 @@ void PhysicsApp::PachinkoScene()
 	}
 
 	int rows = 4;
-	int columns = 11;
+	int columns = 9;
 
 	for (int y = 0; y < rows; y++)
 	{
 		for (int x = 0; x < columns; x++)
 		{
-			Sphere* sphere = new Sphere(glm::vec2((16 * x) - 76, (-40 * y) + 50), glm::vec2(0), 1, 4, glm::vec4(1, 0, 0, 1));
-			sphere->SetElasticity(1);
+			float randE;
+			srand(x * y);
+			randE = (rand() % (10 - 0)) / 10.f;
+			
+ 			Box* box = new Box(glm::vec2((20 * x) - 76, (-40 * y) + 50), glm::vec2(0), 7, 1, 4, 4, glm::vec4((0.96f * randE) + 0.1f, (0.96f * randE) + 0.1f, (0.86f * randE) + 0.1f, 1));
+
+			box->SetElasticity(randE);
+			box->SetKinematic(true);
+			m_physicsScene->AddActor(box);
+		}
+	}
+
+	for (int y = 0; y < rows - 1; y++)
+	{
+		for (int x = 0; x < columns; x++)
+		{
+			float randE;
+			srand(x * y);
+			randE = (rand() % (10 - 0)) / 10.f;
+			
+			Sphere* sphere = new Sphere(glm::vec2((20 * x) - 85, (-40 * y) + 30), glm::vec2(0), 1, 5, glm::vec4((0.96f * randE) + 0.1f, (0.96f * randE) + 0.1f, (0.86f * randE) + 0.1f, 1));
+
+			sphere->SetElasticity(randE);
 			sphere->SetKinematic(true);
 			m_physicsScene->AddActor(sphere);
 		}
 	}
 
-	for (int y = 0; y < rows; y++)
+	for (int x = 0; x < 5; x++)
 	{
-		for (int x = 0; x < columns; x++)
-		{
-			Sphere* sphere = new Sphere(glm::vec2((16 * x) - 84, (-40 * y) + 30), glm::vec2(0), 1, 4, glm::vec4(1, 0, 0, 1));
-			sphere->SetElasticity(1);
-			sphere->SetKinematic(true);
-			m_physicsScene->AddActor(sphere);
-		}
+		float randE;
+		srand(x * 4);
+		randE = (rand() % (10 - 0)) / 10.f;
+
+		Sphere* sphere = new Sphere(glm::vec2((32 * x) - 68, (-40 * 3) + 30), glm::vec2(0), 1, 5, glm::vec4((0.96f * randE) + 0.1f, (0.96f * randE) + 0.1f, (0.86f * randE) + 0.1f, 1));
+
+		sphere->SetElasticity(randE);
+		sphere->SetKinematic(true);
+		m_physicsScene->AddActor(sphere);
 	}
 }

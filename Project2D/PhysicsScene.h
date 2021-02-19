@@ -29,6 +29,8 @@ public:
 	void SetTimeStep(const float a_timeStep) { m_timeStep = a_timeStep; }
 	float GetTimeStep() const { return m_timeStep; }
 
+	std::vector<PhysicsObject*> GetActors() { return m_actors; }
+
 	void CheckForCollision();
 	static void ApplyContactForces(Rigidbody* a_actor1, Rigidbody* a_actor2,
 		glm::vec2 a_collisionNorm, float a_pen);

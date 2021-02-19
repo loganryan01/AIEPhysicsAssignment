@@ -103,6 +103,12 @@ void PhysicsScene::CheckForCollision()
 				{
 					// Check if the collision occurs
 					collisionFunctionPtr(objOuter, objInner);
+
+					// Check if an actor has been removed
+					if (m_actors.size() < actorCount)
+					{
+						actorCount = m_actors.size();
+					}
 				}
 			}
 		}
